@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-brand-yellow: #FFC83D;
+  --color-brand-navy: #1A1A2E;
+  --color-brand-navy-light: #2A2A3E;
+  --color-text-primary: #1A1A2E;
+  --color-text-secondary: #475467;
+  --color-text-muted: #667085;
+  --color-border: #E4E7EC;
+  --font-sans: var(--font-roboto);
+}
+
+body {
+  font-family: var(--font-roboto), "Roboto", sans-serif;
+  color: var(--color-text-primary);
+  background: #ffffff;
+}
+
+/* Logo marquee animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* FAQ accordion */
+.faq-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.faq-content.open {
+  max-height: 500px;
+}
+
+/* Tab active states */
+.tab-active {
+  background-color: #FFC83D;
+  color: #1A1A2E;
+}
+
+/* Case study carousel */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-left {
+  animation: scroll-left 60s linear infinite;
+}
+
+.animate-scroll-left:hover {
+  animation-play-state: paused;
+}
+
+/* Progress bar fill animation */
+@keyframes progress-fill {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+.animate-progress-fill {
+  animation: progress-fill 5s linear forwards;
+}
+
+/* Hide scrollbar for case study carousel */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
