@@ -438,6 +438,15 @@ export default function PricingPage() {
                     </button>
                   )}
 
+                  {/* "What's included" / "Everything in X, plus" */}
+                  <p className="mb-4 text-xs font-medium text-[#98A2B3]">
+                    {tier.name === "Essentials"
+                      ? "What\u2019s included"
+                      : tier.name === "Professional"
+                        ? "Everything in Essentials, plus"
+                        : "Everything in Professional, plus"}
+                  </p>
+
                   {/* Feature list */}
                   <ul className="flex flex-col gap-3">
                     {tier.features.map((feat, i) =>
