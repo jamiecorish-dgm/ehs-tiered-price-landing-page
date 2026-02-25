@@ -9,9 +9,9 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Lone Worker Device | Safe Pro Device | Vatix",
+  title: "EHS Software | Vatix",
   description:
-    "Give your team the ability to call for help in an emergency from our lone worker device. Get a quote in 30 minutes.",
+    "All-in-one EHS software to manage health, safety, and compliance across your organisation. Streamline risk assessments, incident reporting, and lone worker protection in a single platform.",
 };
 
 export default function RootLayout({
