@@ -1,21 +1,176 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 /* ================================================================== */
+/*  ICONS                                                              */
+/* ================================================================== */
+
+function BlueCheckIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+      <circle cx="12" cy="12" r="12" fill="#EEF6FF" />
+      <path d="M7 12.5L10.5 16L17 9" stroke="#2E90FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg className="h-5 w-5 text-[#2E90FA]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+    </svg>
+  );
+}
+
+function ClipboardIcon() {
+  return (
+    <svg className="h-5 w-5 text-[#2E90FA]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" />
+    </svg>
+  );
+}
+
+function DocumentIcon() {
+  return (
+    <svg className="h-5 w-5 text-[#2E90FA]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg className="h-5 w-5 text-[#2E90FA]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+
+/* ================================================================== */
 /*  DATA                                                               */
 /* ================================================================== */
 
-const deviceImages = [
-  { src: "/images/6777e235a3b57bc92a1d25a0_device-01.avif", alt: "Safe Pro Device - Front" },
-  { src: "/images/6777e2349375f821799277f4_device-02.avif", alt: "Safe Pro Device - Side" },
-  { src: "/images/6777e2347976fd44ccc1afba_device-03.avif", alt: "Safe Pro Device - Back" },
-  { src: "/images/6777e2347839649e1c8a54c4_device-04.avif", alt: "Safe Pro Device - Top" },
-  { src: "/images/6777e235c9915b76ace85964_device-05.avif", alt: "Safe Pro Device - Angle" },
-  { src: "/images/6777e234cf4aa62513a1adfc_device-06.avif", alt: "Safe Pro Device - Dock" },
+type Feature = { text: string; tag?: "KEY" | "AI"; unavailable?: boolean };
+
+const tiers = [
+  {
+    name: "Essentials",
+    description:
+      "Bring all your incidents and all your risks into one platform. Track, report, and improve.",
+    monthlyPrice: 24,
+    annualPrice: 19,
+    cta: "View full list",
+    ctaStyle: "outline" as const,
+    popular: false,
+    features: [
+      { text: "Incident reporting \u2014 custom forms" },
+      { text: "Audits & inspections \u2014 unlimited templates" },
+      { text: "Action tracking \u2014 assign & monitor" },
+      { text: "Document management \u2014 10 GB" },
+      { text: "5 standard dashboards" },
+      { text: "Mobile app (iOS & Android)" },
+      { text: "Email support \u2014 48 hr response" },
+      { text: "Risk assessments", unavailable: true },
+      { text: "SSO / SCIM", unavailable: true },
+      { text: "API access", unavailable: true },
+    ] as Feature[],
+  },
+  {
+    name: "Professional",
+    description:
+      "The full EHS platform. For organisations needing more power, control and reporting.",
+    monthlyPrice: 44,
+    annualPrice: 35,
+    cta: "Start free trial",
+    ctaStyle: "primary" as const,
+    popular: true,
+    features: [
+      { text: "Risk assessments & risk register", tag: "KEY" as const },
+      { text: "Root cause analysis & RIDDOR auto-filing" },
+      { text: "Corrective action workflows & escalation" },
+      { text: "Unlimited custom dashboards" },
+      { text: "Branded PDF & Excel reporting" },
+      { text: "Multi-site management (up to 25)" },
+      { text: "SSO / SCIM provisioning" },
+      { text: "API access & standard integrations" },
+      { text: "Priority support \u2014 4 hr SLA" },
+      { text: "Guided onboarding included" },
+    ] as Feature[],
+  },
+  {
+    name: "Enterprise",
+    description:
+      "For large teams with complex requirements, dedicated support, and enterprise security.",
+    monthlyPrice: 69,
+    annualPrice: 55,
+    cta: "Contact Sales",
+    ctaStyle: "outline" as const,
+    popular: false,
+    features: [
+      { text: "AI incident classification & risk scoring", tag: "AI" as const },
+      { text: "Cross-site benchmarking & league tables" },
+      { text: "Predictive analytics & trend detection" },
+      { text: "Unlimited sites" },
+      { text: "Contractor management portal" },
+      { text: "Custom integrations & dedicated API" },
+      { text: "Multi-language support" },
+      { text: "Dedicated account manager & QBRs" },
+      { text: "White-glove implementation" },
+      { text: "99.9% SLA & data residency options" },
+    ] as Feature[],
+  },
+];
+
+const workforceFeatures = [
+  { icon: PhoneIcon, title: "Mobile incident & near-miss reporting" },
+  { icon: ClipboardIcon, title: "Complete assigned checklists" },
+  { icon: DocumentIcon, title: "Document acknowledgement" },
+  { icon: EyeIcon, title: "View own submissions" },
+];
+
+const deviceRates = [
+  { tier: "Essentials", rate: 14, highlight: false },
+  { tier: "Professional", rate: 12, highlight: true },
+  { tier: "Enterprise", rate: 10, highlight: false },
+];
+
+const faqs = [
+  {
+    question:
+      "What\u2019s the difference between full users and workforce licences?",
+    answer:
+      "Full users are your EHS team \u2014 they create audits, manage risk registers, build dashboards, and run reports. Workforce licences are for everyone else: frontline employees who submit incidents, complete assigned checklists, and acknowledge safety documents via the mobile app. This way you get wall-to-wall coverage without paying full-seat prices for every employee.",
+  },
+  {
+    question: "Can I start on Essentials and upgrade later?",
+    answer:
+      "Absolutely. You can upgrade your plan at any time. When you upgrade, you\u2019ll get immediate access to the additional features and we\u2019ll pro-rate the cost for the remainder of your billing period.",
+  },
+  {
+    question: "Do you offer volume discounts?",
+    answer:
+      "Yes, we offer volume discounts for larger teams. Contact our sales team to discuss pricing for your organisation\u2019s specific needs.",
+  },
+  {
+    question: "What\u2019s included in the lone worker add-on?",
+    answer:
+      "The lone worker add-on includes either our mobile app (GPS check-ins, SOS alerts, man-down detection) or our Safe Pro dedicated hardware device with 24/7 Alarm Receiving Centre monitoring, fall detection, and location tracking.",
+  },
+  {
+    question: "Is there a free trial?",
+    answer:
+      "Yes, we offer a free trial of our Professional plan so you can experience the full platform before committing. No credit card required to get started.",
+  },
+  {
+    question: "Can I access Vatix on G-Cloud?",
+    answer:
+      "Yes, Vatix is available on the G-Cloud framework, making it easy for public sector organisations to procure our services through the Digital Marketplace.",
+  },
 ];
 
 const g2Badges = [
@@ -60,203 +215,57 @@ const testimonials = [
   },
 ];
 
-const howItWorksSteps = [
+const appFeatures = [
   {
-    icon: "/images/677d8b95c3b8e088aade26e8_Mouse-Wireless.svg",
-    step: "1",
+    title: "Quickly call for help in an emergency",
+    description:
+      "Instantly trigger a call to our 24/7 alarm receiving centre and ensure no time is wasted during critical situations.",
+    icon: "/images/677d8b969656fca63c1139cb_Online-Medical-Call-Service.svg",
+    media: "/images/6765634ec3d267bb10bf5016_Content_al-min.avif",
+  },
+  {
+    title: "Keep in touch throughout the day with check-ins",
+    description:
+      "Allow staff to check in at any time or respond when prompted. A simple swipe confirms they are still safe.",
+    icon: "/images/677d8c0a87c47f323a0b4d74_Notification-Message-Alert.svg",
+    media: "/images/68235f8d92347bb19bb2cb27_FINAL-Check-in-mock-ups.gif",
+  },
+  {
+    title: "Know your team made it home safely",
+    description:
+      "Enable your team to mark themselves as 'home safe' at the end of their shift, giving you confidence everyone made it home safely.",
+    icon: "/images/68235ef47bdd7016e74ef528_home-4--home-house-roof-shelter.svg",
+    media: "/images/682370a94b92fa03f0891527_team-view-mobile-app.gif",
+  },
+];
+
+const deviceFeatures = [
+  {
     title: "Activate the Alarm Instantly",
-    description: "Press the device's SOS button or rely on automatic fall detection to trigger the alarm.",
-    image: "/images/676545ee4c5144216b79b20e_image-min.avif",
-  },
-  {
-    icon: "/images/67acbfc97df34e5b30c0856a_Untitled design (2).png",
-    step: "2",
-    title: "Speak to a Trained Operator",
-    description: "Once the alarm is activated, you're connected to a dedicated operator at our 24/7 Alarm Receiving Centre who will listen in and assess the situation. If it's safe, the operator will communicate directly with you via the device's speaker and microphone.",
-    image: "/images/67647cb45cd3d12b1a6d48f7_Content-min.avif",
-  },
-  {
-    icon: "/images/677d8b96248c653bb4064ce0_Insurance-Hand.svg",
-    step: "3",
-    title: "Get the Fastest Possible Emergency Response",
-    description: "Vatix's URN access provides direct communication with police control rooms, bypassing 999 for quicker response times for emergency services. The operator will also contact your emergency contacts to keep them informed.",
-    image: "/images/67acc20873d3b76cd5507230_ambulance-2024-09-22-16-48-47-utc.jpg",
-  },
-];
-
-const features = [
-  {
+    description:
+      "Press the device\u2019s SOS button or rely on automatic fall detection to trigger the alarm.",
     icon: "/images/677d8b95c3b8e088aade26e8_Mouse-Wireless.svg",
-    title: "4G Lone Worker Device",
-    description: "With our Safe Pro 4G lone working alarm device, simply press the button to make an instant phone call to our 24/7 monitoring centre for emergency assistance.",
+    media: "/images/676545ee4c5144216b79b20e_image-min.avif",
   },
   {
-    icon: "/images/677d8b93c3281ee1aaa77d5c_Cellular-Network-4g.svg",
-    title: "4G/HD Quality Calls",
-    description: "Our devices are future-proofed with 4G for enhanced coverage, reliable connections, and crystal-clear audio, ensuring dependable performance as 2G networks phase out.",
+    title: "Speak to a Trained Operator",
+    description:
+      "Once the alarm is activated, you\u2019re connected to a dedicated operator at our 24/7 Alarm Receiving Centre who will assess the situation and communicate directly with you via the device\u2019s speaker and microphone.",
+    icon: "/images/67acbfc97df34e5b30c0856a_Untitled design (2).png",
+    media: "/images/67647cb45cd3d12b1a6d48f7_Content-min.avif",
   },
   {
-    icon: "/images/677d8b99a3ee30e685dcc391_Wifi-Antenna.svg",
-    title: "Roaming SIM Card",
-    description: "The roaming SIM card allows devices to roam between O2, Vodafone, EE, and Three to ensure the best connection. Data and voice calls for alarm activations included.",
-  },
-  {
-    icon: "/images/677d8b9387c47f323a0ae7d4_Clipboard-Check.svg",
-    title: "24/7 Alarm Monitoring",
-    description: "We use two UK-based 24/7 dedicated monitoring centres to provide swift responses to alarm calls, with fast-track Police Level 1 response available in the UK&I.",
-  },
-  {
-    icon: "/images/677d8b9263844c7da9ebe981_Battery-Full.svg",
-    title: "Up to 7-Day Battery Life",
-    description: "Reliable, long-lasting power to keep your team connected without the need for frequent recharging.",
-  },
-  {
-    icon: "/images/677d8b9387c47f323a0ae7de_Electric-Cord.svg",
-    title: "Fast Charging Dock",
-    description: "Fully recharges the device in just 4 hours, minimising downtime. Includes charging dock, USB C cable, and plug.",
-  },
-  {
-    icon: "/images/677d8b95a1ec2867747ec928_Location-Pin.svg",
-    title: "Location Tracking",
-    description: "Combines automatic GPS updates and advanced Wi-Fi positioning to provide accurate location data, indoors and outdoors.",
-  },
-  {
-    icon: "/images/677d8b97466e40fe2f84fca4_Recording-Tape-Bubble-Circle.svg",
-    title: "Status Updates",
-    description: "Allows users to post voice notes from the device, giving alarm responders valuable context before an emergency arises.",
-  },
-  {
-    icon: "/images/677d90201576e9f3c2edbd52_Local-Storage-Folder.svg",
-    title: "Management Portal",
-    description: "Assign devices, set alarm response instructions, automatically track alerts, and view usage dashboards. Manager users are included at no additional charge.",
-  },
-];
-
-const platformTabs = [
-  {
-    icon: "/images/677d8b998f5e6c07110789ab_User-Add-Plus.svg",
-    title: "Easy to Setup",
-    description: "Easily add new team members and quickly allocate and de-allocate devices and licenses to users.",
-    image: "/images/6769776cecf082b10bc679c1_Easy-to-Setup-2x-1.webp",
-  },
-  {
-    icon: "/images/677d8b94ddd0fca7b9244c60_Clipboard-Remove.svg",
-    title: "Detailed Alarm Reports",
-    description: "Fully meet your compliance audit requirements with a comprehensive audit trail of every alarm activation.",
-    image: "/images/67697c3be4d546944a2f98bc_Detailed-Alarm-Reports-2x.webp",
-  },
-  {
-    icon: "/images/677d8b9490c13d1f33d12392_Heart-Rate-Search.svg",
-    title: "Track & Monitor Engagement",
-    description: "Get actionable insights on user engagement and alarm triggers to ensure full compliance with lone worker procedures.",
-    image: "/images/67697c3b36b2d7e343936b3a_Track-Monitor-Engagement-2x.webp",
-  },
-];
-
-const caseStudies = [
-  {
-    logo: "/images/676842c1e920e5490dfaff90_logo__watmos.avif",
-    logoAlt: "WATMOS",
-    quote: "Vatix stood out with its all-in-one system, including real-time location tracking - at no extra cost.",
-    role: "Human Resources Officer",
-  },
-  {
-    logo: "/images/676842d577cb968e98e5d54d_pilon-logo.avif",
-    logoAlt: "PiLON",
-    quote: "Having key incident information at my fingertips is invaluable...",
-    role: "HSE Manager",
-  },
-  {
-    logo: "/images/676842e67d744ee62ca857f3_Greencore_Group_plc_Logo-2.avif",
-    logoAlt: "Greencore",
-    quote: "The feedback has been really positive internally...",
-    role: "Road Safety Manager",
-  },
-  {
-    logo: "/images/676851585a3ec360e3b64226_dfds.svg",
-    logoAlt: "DFDS",
-    quote: "The system has been great for team leaders...",
-    role: "HSE Advisor",
-  },
-  {
-    logo: "/images/676842349385edf04a175fbb_Wessex-Internet_Master-Logo-1.avif",
-    logoAlt: "Wessex Internet",
-    quote: "The whole process has been very fast and simple...",
-    role: "Health & Safety Advisor",
-  },
-  {
-    logo: "/images/67684250dc6bc1ff55bf11be_250px-Brighton_and_Hove_City_Council.svg.avif",
-    logoAlt: "Brighton & Hove",
-    quote: "The Vatix team made the set-up very smooth...",
-    role: "Transport Monitoring Team Leader",
-  },
-  {
-    logo: "/images/67684285b73c68e3a2909fec_ezgif.com-webp-to-png-converter.avif",
-    logoAlt: "Hotel Co 51",
-    quote: "With Vatix's Safe Pro devices, our staff feel secure...",
-    role: "Regional Director Operations",
-  },
-  {
-    logo: "/images/676843784cef0c6510cf32f2_spark2life.svg",
-    logoAlt: "Spark 2 Life",
-    quote: "The most important thing is looking after your workers...",
-    role: "Community Mentoring Administrative Coordinator",
-  },
-  {
-    logo: "/images/6768415077cb968e98e4d323_swissport.svg",
-    logoAlt: "Swissport",
-    quote: "Having someone available 24/7 to answer emergency calls...",
-    role: "QHSE Manager",
-  },
-  {
-    logo: "/images/6768429571b9334d1a3e5191_Robinson-Contract-Services-logo.avif",
-    logoAlt: "Robinson Contract",
-    quote: "The reporting makes it simple to check if devices are active...",
-    role: "Projector Coordinator",
-  },
-  {
-    logo: "/images/676842a59385edf04a17abe8_plantbean.svg",
-    logoAlt: "Plant & Bean",
-    quote: "The system is incredibly valuable...",
-    role: "Interim Health & Safety Manager",
-  },
-];
-
-const faqItems = [
-  {
-    question: "Can I have some people using the Lone Worker Device and others using the Lone Worker App within the same account?",
-    answer: "Absolutely, you can integrate both Lone Worker devices and Lone Worker App licenses within the same account. This flexibility enables you to tailor the safety solutions according to each employee's specific needs and risk assessments.",
-  },
-  {
-    question: "What are the advantages of using a lone worker device?",
-    answer: "Utilising a lone worker device gives you a reliable, straightforward method for raising an alarm. These devices are designed to high safety standards, offering robustness and an extended battery life compared to mobile phones.",
-  },
-  {
-    question: "What accessories are included with the lone worker device?",
-    answer: "The Lone Worker device package includes the Safe Pro device, a quick-release lanyard, a charging docking station, a cable for connecting the wall plug and charger, a getting-started user guide, and a UK wall plug. Additional wearable accessories like a belt clip, in-vehicle mount, and wall mount are also available.",
-  },
-  {
-    question: "What privacy measures are in place for the lone worker device?",
-    answer: "Your privacy is a priority. Location data is utilised solely in emergency scenarios. Upon alarm activation, the device's location is shared with our monitoring centres to provide an immediate and effective response. Moreover, a variety of privacy controls can be configured via the web portal, aligning with your organisation's policies.",
-  },
-  {
-    question: "Why should I opt for a 4G lone worker device instead of a 2G device?",
-    answer: "A 4G lone worker device offers numerous advantages over its 2G counterpart. These include broader network coverage\u2014especially in rural areas\u2014and more efficient support for features like live tracking. As 2G technology is gradually being phased out, a 4G device ensures longer-term compatibility and support.",
+    title: "Get the Fastest Possible Emergency Response",
+    description:
+      "Vatix\u2019s URN access provides direct communication with police control rooms, bypassing 999 for quicker response times. The operator will also contact your emergency contacts.",
+    icon: "/images/677d8b96248c653bb4064ce0_Insurance-Hand.svg",
+    media: "/images/67acc20873d3b76cd5507230_ambulance-2024-09-22-16-48-47-utc.jpg",
   },
 ];
 
 /* ================================================================== */
-/*  SVG ICONS                                                          */
+/*  HELPER COMPONENTS                                                  */
 /* ================================================================== */
-
-function BlueCheckIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-      <circle cx="12" cy="12" r="12" fill="#EEF6FF" />
-      <path d="M7 12.5L10.5 16L17 9" stroke="#2E90FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 function StarRating() {
   return (
@@ -285,243 +294,192 @@ function VerifiedBadge() {
   );
 }
 
-
 /* ================================================================== */
-/*  MAIN PAGE COMPONENT                                                */
+/*  PAGE                                                               */
 /* ================================================================== */
 
-export default function Home() {
-  const [activeDevice, setActiveDevice] = useState(0);
-  const [activeHowItWorks, setActiveHowItWorks] = useState(0);
-  const [activePlatformTab, setActivePlatformTab] = useState(0);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const caseStudyRef = useRef<HTMLDivElement>(null);
+export default function PricingPage() {
+  const [isAnnual, setIsAnnual] = useState(true);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [fullUsers, setFullUsers] = useState(15);
+  const [workforce, setWorkforce] = useState(200);
+  const [devices, setDevices] = useState(0);
+  const [loneWorkerTab, setLoneWorkerTab] = useState<"device" | "app">("device");
+  const [featureStep, setFeatureStep] = useState(0);
+  const [apps, setApps] = useState(0);
+  const [calcTier, setCalcTier] = useState(1); // 0=Essentials, 1=Professional, 2=Enterprise
 
-  const scrollCaseStudies = useCallback((direction: "left" | "right") => {
-    const container = caseStudyRef.current;
-    if (!container) return;
-    const scrollAmount = 340; // card width (320) + gap (20)
-    container.scrollBy({
-      left: direction === "right" ? scrollAmount : -scrollAmount,
-      behavior: "smooth",
-    });
-  }, []);
+  const activeFeatures = loneWorkerTab === "app" ? appFeatures : deviceFeatures;
 
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
+  /* Cost calculator — tier-aware */
+  const calcTierData = [
+    { name: "Essentials", monthly: 24, annual: 19, deviceRate: 14, appRate: 7 },
+    { name: "Professional", monthly: 44, annual: 35, deviceRate: 12, appRate: 6 },
+    { name: "Enterprise", monthly: 69, annual: 55, deviceRate: 10, appRate: 5 },
+  ];
+  const activeTier = calcTierData[calcTier];
+  const userRateMo = isAnnual ? activeTier.annual : activeTier.monthly;
+  const workforceMo = 2;
+  const estimatedAnnualCost =
+    fullUsers * userRateMo * 12 +
+    workforce * workforceMo * 12 +
+    devices * activeTier.deviceRate * 12 +
+    apps * activeTier.appRate * 12;
 
   return (
-    <div className="min-h-screen font-sans" style={{ backgroundImage: 'linear-gradient(180deg, #EEF6FF 0%, #FFFFFF 900px)', backgroundRepeat: 'no-repeat', backgroundColor: '#FFFFFF' }}>
+    <div
+      className="min-h-screen font-sans"
+      style={{
+        backgroundImage: "linear-gradient(180deg, #EEF6FF 0%, #FFFFFF 900px)",
+        backgroundRepeat: "no-repeat",
+        backgroundColor: "#FFFFFF",
+      }}
+    >
       <Header />
 
       <main>
-        {/* ============================================================ */}
-        {/*  SECTION 1 — HERO                                            */}
-        {/* ============================================================ */}
-        <section className="py-12 md:py-20">
+        {/* ====================================================== */}
+        {/*  HERO                                                   */}
+        {/* ====================================================== */}
+        <section className="pt-32 pb-12 text-center">
           <div className="mx-auto max-w-[1280px] px-5 md:px-8">
-            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[55%_45%] lg:gap-12 items-start">
-              {/* Left — Text + Device Carousel */}
-              <div className="flex flex-col">
-                <span className="mb-4 inline-flex w-fit items-center rounded-full border border-[#D0D5DD] px-4 py-1.5 text-sm font-medium text-[#1A1A2E]">
-                  Lone Worker Device
+            {/* Badge */}
+            <div className="mb-6 inline-flex items-center rounded-full border border-[#D0D5DD] bg-white px-4 py-1.5 text-sm font-medium text-[#1A1A2E]">
+              SIMPLE, TRANSPARENT PRICING
+            </div>
+
+            <h1 className="mb-4 text-4xl font-bold text-[#1A1A2E] md:text-5xl lg:text-[56px] lg:leading-[1.1]">
+              Safety software that{" "}
+              <span className="text-[#FFC83D]">scales with</span> you
+            </h1>
+
+            <p className="mx-auto mb-10 max-w-2xl text-lg text-[#475467]">
+              From your first incident report to a fully connected EHS platform.
+              Pay for what you need, upgrade when you&apos;re ready.
+            </p>
+
+            {/* Monthly / Annual toggle */}
+            <div className="mb-12 inline-flex items-center gap-1 rounded-full bg-[#F2F4F7] p-1">
+              <button
+                onClick={() => setIsAnnual(false)}
+                className={`rounded-full px-6 py-2 text-sm font-medium transition-colors ${
+                  !isAnnual
+                    ? "bg-[#FFC83D] text-[#1A1A2E] shadow-sm"
+                    : "text-[#667085] hover:text-[#1A1A2E]"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setIsAnnual(true)}
+                className={`rounded-full px-6 py-2 text-sm font-medium transition-colors ${
+                  isAnnual
+                    ? "bg-[#FFC83D] text-[#1A1A2E] shadow-sm"
+                    : "text-[#667085] hover:text-[#1A1A2E]"
+                }`}
+              >
+                Annual
+                <span className="ml-1.5 text-xs font-semibold text-[#2E90FA]">
+                  Save 20%
                 </span>
-
-                <h1 className="mb-6 text-4xl font-bold leading-tight text-[#1A1A2E] md:text-5xl lg:text-[56px] lg:leading-[1.1]">
-                  Safe Pro Device
-                </h1>
-
-                <p className="mb-8 text-lg leading-relaxed text-[#475467]">
-                  Give your team the ability to call for help in an emergency from our lone worker device.
-                </p>
-
-                <ul className="mb-10 flex flex-col gap-4">
-                  <li className="flex items-start gap-3">
-                    <BlueCheckIcon />
-                    <span className="text-base text-[#1A1A2E]">
-                      <strong>Solely dedicated</strong> to lone worker alarms for better responses
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <BlueCheckIcon />
-                    <span className="text-base text-[#1A1A2E]">
-                      <strong>Bypasses 999 call</strong> and saves vital time in an emergency
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <BlueCheckIcon />
-                    <span className="text-base text-[#1A1A2E]">
-                      <strong>Accredited</strong> to the highest industry standards
-                    </span>
-                  </li>
-                </ul>
-
-                {/* Device Carousel */}
-                <div className="rounded-2xl bg-[#F9FAFB] p-6">
-                  {/* Main image with arrows */}
-                  <div className="flex items-center justify-center gap-3">
-                    <button
-                      onClick={() => setActiveDevice((prev) => (prev === 0 ? deviceImages.length - 1 : prev - 1))}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D0D5DD] bg-white text-[#667085] transition-colors hover:bg-[#F9FAFB]"
-                      aria-label="Previous image"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8L10 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    </button>
-                    <Image
-                      src={deviceImages[activeDevice].src}
-                      alt={deviceImages[activeDevice].alt}
-                      width={400}
-                      height={400}
-                      className="h-auto max-h-[320px] w-auto object-contain"
-                      priority
-                    />
-                    <button
-                      onClick={() => setActiveDevice((prev) => (prev === deviceImages.length - 1 ? 0 : prev + 1))}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D0D5DD] bg-white text-[#667085] transition-colors hover:bg-[#F9FAFB]"
-                      aria-label="Next image"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    </button>
-                  </div>
-
-                  {/* Thumbnails below */}
-                  <div className="mt-4 flex gap-2 justify-center">
-                    {deviceImages.map((img, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setActiveDevice(i)}
-                        className={`h-14 w-14 overflow-hidden rounded-lg border-2 transition-all ${
-                          activeDevice === i
-                            ? "border-[#FFC83D] shadow-md"
-                            : "border-transparent opacity-60 hover:opacity-100"
-                        }`}
-                      >
-                        <Image
-                          src={img.src}
-                          alt={img.alt}
-                          width={56}
-                          height={56}
-                          className="h-full w-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Right — Quote Form */}
-              {/* HubSpot form will be embedded here */}
-              <div className="overflow-hidden rounded-2xl bg-white shadow-lg border border-gray-100 lg:mt-14">
-                <div className="px-8 pt-8 pb-4">
-                  <h3 className="text-[28px] font-bold leading-tight text-[#1A1A2E]">
-                    Get a Quote in 30 Minutes
-                  </h3>
-                </div>
-                <div className="space-y-5 px-8 pb-8">
-                  {/* First Name / Last Name */}
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <label className="mb-1.5 block text-sm font-medium text-[#344054]">
-                        First Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="First Name"
-                        className="w-full rounded-lg border border-[#D0D5DD] px-3.5 py-2.5 text-sm text-[#1A1A2E] placeholder-[#98A2B3] outline-none transition-colors focus:border-[#FFC83D] focus:ring-1 focus:ring-[#FFC83D]"
-                      />
-                    </div>
-                    <div>
-                      <label className="mb-1.5 block text-sm font-medium text-[#344054]">
-                        Last Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Last Name"
-                        className="w-full rounded-lg border border-[#D0D5DD] px-3.5 py-2.5 text-sm text-[#1A1A2E] placeholder-[#98A2B3] outline-none transition-colors focus:border-[#FFC83D] focus:ring-1 focus:ring-[#FFC83D]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Work Email */}
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-[#344054]">
-                      Work Email Address <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="Work Email Address"
-                      className="w-full rounded-lg border border-[#D0D5DD] px-3.5 py-2.5 text-sm text-[#1A1A2E] placeholder-[#98A2B3] outline-none transition-colors focus:border-[#FFC83D] focus:ring-1 focus:ring-[#FFC83D]"
-                    />
-                  </div>
-
-                  {/* Phone Number */}
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-[#344054]">
-                      Phone Number <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="Phone Number"
-                      className="w-full rounded-lg border border-[#D0D5DD] px-3.5 py-2.5 text-sm text-[#1A1A2E] placeholder-[#98A2B3] outline-none transition-colors focus:border-[#FFC83D] focus:ring-1 focus:ring-[#FFC83D]"
-                    />
-                  </div>
-
-                  {/* Company */}
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-[#344054]">
-                      Company <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Company"
-                      className="w-full rounded-lg border border-[#D0D5DD] px-3.5 py-2.5 text-sm text-[#1A1A2E] placeholder-[#98A2B3] outline-none transition-colors focus:border-[#FFC83D] focus:ring-1 focus:ring-[#FFC83D]"
-                    />
-                  </div>
-
-                  {/* Device Count Dropdown */}
-                  <div>
-                    <label className="mb-1.5 block text-sm font-medium text-[#344054]">
-                      How many team members will be using a device? <span className="text-red-500">*</span>
-                    </label>
-                    <select className="w-full appearance-none rounded-lg border border-[#D0D5DD] bg-white px-3.5 py-2.5 text-sm text-[#1A1A2E] outline-none transition-colors focus:border-[#FFC83D] focus:ring-1 focus:ring-[#FFC83D]">
-                      <option value="">Please Select</option>
-                      <option value="1-9">1-9</option>
-                      <option value="10-49">10-49</option>
-                      <option value="50-149">50-149</option>
-                      <option value="150+">150+</option>
-                    </select>
-                  </div>
-
-                  {/* Privacy Checkbox */}
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      id="privacy"
-                      className="mt-1 h-4 w-4 shrink-0 rounded border-[#D0D5DD] accent-[#FFC83D]"
-                    />
-                    <label htmlFor="privacy" className="text-xs leading-relaxed text-[#667085]">
-                      I agree to the{" "}
-                      <a href="#" className="text-[#1A1A2E] underline">
-                        privacy policy
-                      </a>
-                      . By submitting this form, I consent to Vatix contacting me regarding their products and services.
-                    </label>
-                  </div>
-
-                  {/* Submit Button */}
-                  <button className="w-full rounded-lg bg-[#FFC83D] px-6 py-3 text-sm font-semibold text-[#1A1A2E] transition-colors hover:bg-[#FFD060]">
-                    Submit
-                  </button>
-                </div>
-              </div>
+              </button>
             </div>
           </div>
         </section>
 
-        {/* ============================================================ */}
-        {/*  SECTION 3 — G2 TRUST BADGES                                 */}
-        {/* ============================================================ */}
+        {/* ====================================================== */}
+        {/*  PRICING CARDS                                          */}
+        {/* ====================================================== */}
+        <section className="pb-20 md:pb-28">
+          <div className="mx-auto max-w-[1280px] px-5 md:px-8">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {tiers.map((tier) => (
+                <div
+                  key={tier.name}
+                  className={`relative flex flex-col rounded-2xl border p-6 md:p-8 ${
+                    tier.popular
+                      ? "border-[#FFC83D] bg-white shadow-lg"
+                      : "border-gray-200 bg-white shadow-sm"
+                  }`}
+                >
+                  {tier.popular && (
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-[#FFC83D] px-4 py-1 text-xs font-bold uppercase tracking-wide text-[#1A1A2E]">
+                      Most Popular
+                    </div>
+                  )}
+
+                  <h3 className="mb-2 text-xl font-bold text-[#1A1A2E]">
+                    {tier.name}
+                  </h3>
+                  <p className="mb-6 min-h-[48px] text-sm leading-relaxed text-[#667085]">
+                    {tier.description}
+                  </p>
+
+                  {/* Price */}
+                  <div className="mb-6">
+                    <span className="text-4xl font-bold text-[#1A1A2E]">
+                      £{isAnnual ? tier.annualPrice : tier.monthlyPrice}
+                    </span>
+                    <span className="text-sm text-[#667085]">/user/month</span>
+                    {isAnnual && (
+                      <span className="ml-2 text-xs text-[#98A2B3] line-through">
+                        £{tier.monthlyPrice}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* CTA */}
+                  {tier.ctaStyle === "primary" ? (
+                    <button className="mb-8 w-full rounded-lg bg-[#FFC83D] px-6 py-3 text-sm font-semibold text-[#1A1A2E] transition-colors hover:bg-[#FFD060]">
+                      {tier.cta}
+                    </button>
+                  ) : (
+                    <button className="mb-8 w-full rounded-lg border border-gray-300 px-6 py-3 text-sm font-semibold text-[#1A1A2E] transition-colors hover:bg-gray-50">
+                      {tier.cta}
+                    </button>
+                  )}
+
+                  {/* Feature list */}
+                  <ul className="flex flex-col gap-3">
+                    {tier.features.map((feat, i) =>
+                      feat.unavailable ? (
+                        <li key={i} className="flex items-start gap-3 opacity-40">
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+                            <circle cx="12" cy="12" r="12" fill="#F2F4F7" />
+                            <path d="M8 12H16" stroke="#98A2B3" strokeWidth="2" strokeLinecap="round" />
+                          </svg>
+                          <span className="text-sm text-[#98A2B3] line-through">
+                            {feat.text}
+                          </span>
+                        </li>
+                      ) : (
+                        <li key={i} className="flex items-start gap-3">
+                          <BlueCheckIcon />
+                          <span className="text-sm text-[#475467]">
+                            {feat.text}
+                            {feat.tag && (
+                              <span className={`ml-1.5 inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none ${
+                                feat.tag === "AI"
+                                  ? "bg-[#EEF6FF] text-[#2E90FA]"
+                                  : "bg-[#FFC83D]/20 text-[#1A1A2E]"
+                              }`}>
+                                {feat.tag}
+                              </span>
+                            )}
+                          </span>
+                        </li>
+                      )
+                    )}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ====================================================== */}
+        {/*  G2 BADGES                                              */}
+        {/* ====================================================== */}
         <section className="py-10 md:py-14">
           <div className="mx-auto max-w-[1280px] px-5 md:px-8">
             <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
@@ -537,9 +495,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============================================================ */}
-        {/*  SECTION 4 — CUSTOMER LOGOS MARQUEE                          */}
-        {/* ============================================================ */}
+        {/* ====================================================== */}
+        {/*  CUSTOMER LOGOS MARQUEE                                  */}
+        {/* ====================================================== */}
         <section className="py-10 md:py-14">
           <div className="mx-auto max-w-[1280px] px-5 md:px-8">
             <p className="mb-10 text-center text-lg font-medium text-[#1A1A2E] md:text-xl">
@@ -548,7 +506,6 @@ export default function Home() {
           </div>
           <div className="overflow-hidden">
             <div className="animate-marquee flex w-max items-center gap-12 md:gap-16">
-              {/* First set */}
               {customerLogos.map((logo) => (
                 <img
                   key={`a-${logo.alt}`}
@@ -557,7 +514,6 @@ export default function Home() {
                   className="h-8 w-auto md:h-10"
                 />
               ))}
-              {/* Duplicate set for seamless loop */}
               {customerLogos.map((logo) => (
                 <img
                   key={`b-${logo.alt}`}
@@ -570,10 +526,60 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============================================================ */}
-        {/*  SECTION 5 — TESTIMONIALS                                    */}
-        {/* ============================================================ */}
-        <section className="bg-[#102A56] py-20 md:py-28">
+        {/* ====================================================== */}
+        {/*  WORKFORCE REPORTING                                    */}
+        {/* ====================================================== */}
+        <section className="bg-[#102A56] pt-20 pb-6 md:pt-28 md:pb-8">
+          <div className="mx-auto max-w-[1280px] px-5 md:px-8">
+            <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2">
+              {/* Left — copy */}
+              <div>
+                <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">
+                  Get your{" "}
+                  <span className="text-[#FFC83D]">entire workforce</span>{" "}
+                  reporting
+                </h2>
+                <p className="mb-8 max-w-lg text-base leading-relaxed text-white/70">
+                  Full-seat pricing shouldn&apos;t stop you rolling out safety
+                  reporting to every employee. Workforce licences let frontline
+                  staff submit incidents, complete checklists, and acknowledge
+                  documents — without the cost of a full seat.
+                </p>
+                <div className="mb-3">
+                  <span className="text-4xl font-bold text-white">£2</span>
+                  <span className="ml-1 text-white/60">
+                    /person/month · billed annually
+                  </span>
+                </div>
+                <p className="text-sm text-white/40">
+                  Minimum 50 workforce licences · Available on any plan
+                </p>
+              </div>
+
+              {/* Right — feature cards */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {workforceFeatures.map((feat) => (
+                  <div
+                    key={feat.title}
+                    className="flex items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#EEF6FF]/10">
+                      <feat.icon />
+                    </div>
+                    <span className="text-sm font-medium leading-snug text-white/80">
+                      {feat.title}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ====================================================== */}
+        {/*  WHAT OUR CUSTOMERS SAY                                 */}
+        {/* ====================================================== */}
+        <section className="bg-[#102A56] pt-10 pb-20 md:pt-14 md:pb-28">
           <div className="mx-auto max-w-[1280px] px-5 md:px-8">
             <h2 className="mb-12 text-center text-3xl font-bold text-white md:text-4xl">
               What Our Customers Say
@@ -600,48 +606,161 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============================================================ */}
-        {/*  SECTION 6 — HOW IT WORKS                                    */}
-        {/* ============================================================ */}
-        <section className="bg-white py-20 md:py-28">
+        {/* ====================================================== */}
+        {/*  LONE WORKER PROTECTION ADD-ON                          */}
+        {/* ====================================================== */}
+        <section className="bg-white py-14 md:py-20">
           <div className="mx-auto max-w-[1280px] px-5 md:px-8">
-            <h2 className="mb-12 text-center text-3xl font-bold text-[#1A1A2E] md:text-4xl">
-              How It Works
-            </h2>
+            {/* Heading */}
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+              <h2 className="text-3xl font-bold text-[#1A1A2E] md:text-4xl">
+                Lone Worker Protection
+              </h2>
+              <span className="rounded-full bg-[#FFC83D] px-3 py-1 text-xs font-bold uppercase tracking-wide text-[#1A1A2E]">
+                Add-on
+              </span>
+            </div>
+            <p className="mb-12 max-w-2xl text-base leading-relaxed text-[#475467]">
+              Add integrated lone worker monitoring to any plan. Combine safety
+              software with hardware-backed personal protection — something no
+              other EHS platform offers.
+            </p>
 
+            {/* Pricing options card */}
+            <div className="mb-12 rounded-2xl bg-white p-6 shadow-sm md:p-8">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr]">
+                {/* Safe Pro Device — selectable (default) */}
+                <button
+                  onClick={() => { setLoneWorkerTab("device"); setFeatureStep(0); }}
+                  className={`rounded-xl border-2 p-5 text-left transition-all ${
+                    loneWorkerTab === "device"
+                      ? "border-[#2E90FA] bg-[#EEF6FF]/40"
+                      : "border-[#E4E7EC] hover:border-[#D0D5DD]"
+                  }`}
+                >
+                  <div className="mb-2.5 flex items-center gap-2">
+                    <div className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                      loneWorkerTab === "device" ? "border-[#2E90FA]" : "border-[#D0D5DD]"
+                    }`}>
+                      {loneWorkerTab === "device" && (
+                        <div className="h-2.5 w-2.5 rounded-full bg-[#2E90FA]" />
+                      )}
+                    </div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[#667085]">
+                      Safe Pro Device + 24/7 ARC
+                    </p>
+                  </div>
+                  <div className="mb-3">
+                    <span className="mr-1 text-sm text-[#98A2B3]">from</span>
+                    <span className="text-3xl font-bold text-[#1A1A2E]">£10</span>
+                    <span className="text-sm text-[#667085]">/device/mo</span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-[#475467]">
+                    Dedicated hardware, fall detection, ARC monitoring
+                  </p>
+                </button>
+
+                {/* Lone Worker App — selectable */}
+                <button
+                  onClick={() => { setLoneWorkerTab("app"); setFeatureStep(0); }}
+                  className={`rounded-xl border-2 p-5 text-left transition-all ${
+                    loneWorkerTab === "app"
+                      ? "border-[#2E90FA] bg-[#EEF6FF]/40"
+                      : "border-[#E4E7EC] hover:border-[#D0D5DD]"
+                  }`}
+                >
+                  <div className="mb-2.5 flex items-center gap-2">
+                    <div className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                      loneWorkerTab === "app" ? "border-[#2E90FA]" : "border-[#D0D5DD]"
+                    }`}>
+                      {loneWorkerTab === "app" && (
+                        <div className="h-2.5 w-2.5 rounded-full bg-[#2E90FA]" />
+                      )}
+                    </div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[#667085]">
+                      Lone Worker App
+                    </p>
+                  </div>
+                  <div className="mb-3">
+                    <span className="mr-1 text-sm text-[#98A2B3]">from</span>
+                    <span className="text-3xl font-bold text-[#1A1A2E]">£5</span>
+                    <span className="text-sm text-[#667085]">/user/mo</span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-[#475467]">
+                    GPS check-ins, SOS alerts, man-down
+                  </p>
+                </button>
+
+                {/* Tier rates */}
+                <div className="flex flex-col gap-2.5 sm:col-span-2 lg:col-span-1">
+                  {(loneWorkerTab === "device"
+                    ? deviceRates.map((d) => ({ ...d, label: "Device", unit: "/mo" }))
+                    : [
+                        { tier: "Essentials", rate: 7, highlight: false },
+                        { tier: "Professional", rate: 6, highlight: true },
+                        { tier: "Enterprise", rate: 5, highlight: false },
+                      ].map((d) => ({ ...d, label: "App", unit: "/user/mo" }))
+                  ).map((d) => (
+                    <div
+                      key={d.tier}
+                      className="flex items-center justify-between gap-4 rounded-lg bg-[#F9FAFB] px-4 py-2.5"
+                    >
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          d.highlight
+                            ? "bg-[#FFC83D]/20 text-[#1A1A2E]"
+                            : "bg-[#E4E7EC] text-[#475467]"
+                        }`}
+                      >
+                        {d.tier}
+                      </span>
+                      <span className="text-sm text-[#667085]">
+                        <span className="font-semibold text-[#1A1A2E]">£{d.rate}</span>{d.unit}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Feature scroller — same format as source page How It Works */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-[380px_1fr] lg:gap-12">
               {/* Tabs — left side */}
               <div className="flex flex-col gap-0">
-                {howItWorksSteps.map((step, i) => (
+                {activeFeatures.map((feat, i) => (
                   <button
-                    key={i}
-                    onClick={() => setActiveHowItWorks(i)}
-                    className="text-left w-full"
+                    key={`${loneWorkerTab}-${i}`}
+                    onClick={() => setFeatureStep(i)}
+                    className="w-full text-left"
                   >
                     <div className={`flex items-start gap-4 px-5 py-5 transition-all ${
-                      activeHowItWorks === i ? "" : "opacity-60 hover:opacity-80"
+                      featureStep === i ? "" : "opacity-60 hover:opacity-80"
                     }`}>
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#F2F4F7]">
-                        <img src={step.icon} alt="" className="h-5 w-5" />
+                        <img src={feat.icon} alt="" className="h-5 w-5" />
                       </div>
                       <div className="flex-1">
-                        <h3 className={`text-base font-semibold ${activeHowItWorks === i ? "text-[#1A1A2E]" : "text-[#667085]"}`}>
-                          {step.step}. {step.title}
+                        <h3 className={`text-base font-semibold ${
+                          featureStep === i ? "text-[#1A1A2E]" : "text-[#667085]"
+                        }`}>
+                          {feat.title}
                         </h3>
-                        {activeHowItWorks === i && (
+                        {featureStep === i && (
                           <p className="mt-2 text-sm leading-relaxed text-[#475467]">
-                            {step.description}
+                            {feat.description}
                           </p>
                         )}
                       </div>
                     </div>
                     {/* Progress bar */}
                     <div className="h-[3px] w-full bg-[#E4E7EC]">
-                      {activeHowItWorks === i && (
+                      {featureStep === i && (
                         <div
-                          key={`hiw-${activeHowItWorks}`}
-                          className="h-full bg-[#2E90FA] rounded-full animate-progress-fill"
-                          onAnimationEnd={() => setActiveHowItWorks((prev) => (prev + 1) % howItWorksSteps.length)}
+                          key={`lw-${loneWorkerTab}-${featureStep}`}
+                          className="h-full rounded-full bg-[#2E90FA] animate-progress-fill"
+                          onAnimationEnd={() =>
+                            setFeatureStep((prev) => (prev + 1) % activeFeatures.length)
+                          }
                         />
                       )}
                     </div>
@@ -650,268 +769,149 @@ export default function Home() {
               </div>
 
               {/* Image — right side */}
-              <div className="flex items-center justify-center overflow-hidden rounded-2xl bg-[#F9FAFB]">
-                <Image
-                  src={howItWorksSteps[activeHowItWorks].image}
-                  alt={howItWorksSteps[activeHowItWorks].title}
-                  width={700}
-                  height={500}
-                  className="h-auto w-full object-cover rounded-2xl"
+              <div className="flex items-center justify-center overflow-hidden rounded-2xl bg-[#F9FAFB] max-h-[420px]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={activeFeatures[featureStep].media}
+                  alt={activeFeatures[featureStep].title}
+                  className="h-auto max-h-[420px] w-auto max-w-full rounded-2xl object-contain"
                 />
               </div>
             </div>
           </div>
         </section>
 
-        {/* ============================================================ */}
-        {/*  SECTION 7 — FEATURES GRID                                   */}
-        {/* ============================================================ */}
-        <section className="bg-[#EDF6FF] py-20 md:py-28">
-          <div className="mx-auto max-w-[1280px] px-5 md:px-8">
-            <div className="mb-12 text-center">
-              <h2 className="mb-4 text-3xl font-bold text-[#1A1A2E] md:text-4xl">
-                Built with Powerful Features
+        {/* ====================================================== */}
+        {/*  COST CALCULATOR                                        */}
+        {/* ====================================================== */}
+        <section className="bg-[#EEF6FF] py-14 md:py-20">
+          <div className="mx-auto max-w-3xl px-5 md:px-8">
+            <div className="rounded-2xl bg-white p-8 text-center shadow-lg md:p-12 ring-1 ring-[#2E90FA]/30 shadow-[0_0_30px_rgba(46,144,250,0.15),0_0_60px_rgba(46,144,250,0.08)]">
+              <h2 className="mb-3 text-3xl font-bold text-[#1A1A2E] md:text-4xl">
+                Estimate your annual cost
               </h2>
-              <p className="mx-auto max-w-2xl text-lg text-[#475467]">
-                All the features you need to empower your workforce and keep them safe.
+              <p className="mx-auto mb-8 max-w-lg text-base text-[#475467]">
+                See what Vatix would cost for your organisation.
               </p>
-            </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {features.map((feature, i) => (
-                <div
-                  key={i}
-                  className="flex flex-col rounded-2xl bg-white p-6 shadow-sm"
-                >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#EDF6FF]">
-                    <img src={feature.icon} alt="" className="h-6 w-6" />
-                  </div>
-                  <h3 className="mb-2 text-lg font-semibold text-[#1A1A2E]">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-[#475467]">
-                    {feature.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/*  SECTION 8 — 24/7 MONITORING CENTRE                          */}
-        {/* ============================================================ */}
-        <section className="bg-[#102A56] py-20 md:py-28">
-          <div className="mx-auto max-w-[1280px] px-5 md:px-8">
-            <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-              {/* Left — Text */}
-              <div>
-                <h2 className="mb-6 text-3xl font-bold text-white md:text-4xl">
-                  Supported by Our Dedicated 24/7 Alarm Monitoring Centre
-                </h2>
-                <p className="mb-8 text-lg leading-relaxed text-white/70">
-                  Our 24/7 Monitoring Team is highly trained to provide a swift and efficient response to lone worker alarm activations.
-                </p>
-
-                <ul className="flex flex-col gap-4">
-                  <li className="flex items-start gap-3">
-                    <BlueCheckIcon />
-                    <span className="text-base text-white">
-                      <strong>Solely dedicated</strong> to lone worker alarm for better responses
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <BlueCheckIcon />
-                    <span className="text-base text-white">
-                      <strong>Bypasses 999 call</strong> and saves vital time in an emergency
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <BlueCheckIcon />
-                    <span className="text-base text-white">
-                      <strong>Accredited</strong> to the highest industry standards
-                    </span>
-                  </li>
-                </ul>
-
-                <a
-                  href="#"
-                  className="mt-8 inline-flex items-center gap-2 rounded-lg bg-[#FFC83D] px-6 py-3 text-sm font-semibold text-[#1A1A2E] transition-colors hover:bg-[#FFD060]"
-                >
-                  Learn More
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                </a>
-              </div>
-
-              {/* Right — Image */}
-              <div className="overflow-hidden rounded-2xl">
-                <Image
-                  src="/images/67647cb49ab828fc469d5378_Frame_a-min.avif"
-                  alt="24/7 Alarm Monitoring Centre"
-                  width={640}
-                  height={480}
-                  className="h-auto w-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/*  SECTION 9 — PLATFORM MANAGEMENT                             */}
-        {/* ============================================================ */}
-        <section className="bg-white py-20 md:py-28">
-          <div className="mx-auto max-w-[1280px] px-5 md:px-8">
-            <div className="mb-12 text-center">
-              <h2 className="mb-4 text-3xl font-bold text-[#1A1A2E] md:text-4xl">
-                Manage Everything with Ease in One Platform
-              </h2>
-              <p className="mx-auto max-w-3xl text-lg text-[#475467]">
-                Our integrated platform streamlines safety management, allowing you to oversee devices, monitor alerts, and manage responses from one user-friendly interface.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[380px_1fr] lg:gap-12">
-              {/* Tabs — left side */}
-              <div className="flex flex-col gap-0">
-                {platformTabs.map((tab, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActivePlatformTab(i)}
-                    className="text-left w-full"
-                  >
-                    <div className={`flex items-start gap-4 px-5 py-5 transition-all ${
-                      activePlatformTab === i ? "" : "opacity-60 hover:opacity-80"
-                    }`}>
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#F2F4F7]">
-                        <img src={tab.icon} alt="" className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className={`mb-1 text-base font-semibold ${
-                          activePlatformTab === i ? "text-[#1A1A2E]" : "text-[#667085]"
-                        }`}>
-                          {tab.title}
-                        </h3>
-                        {activePlatformTab === i && (
-                          <p className="text-sm leading-relaxed text-[#475467]">
-                            {tab.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    {/* Progress bar */}
-                    <div className="h-[3px] w-full bg-[#E4E7EC]">
-                      {activePlatformTab === i && (
-                        <div
-                          key={`pt-${activePlatformTab}`}
-                          className="h-full bg-[#2E90FA] rounded-full animate-progress-fill"
-                          onAnimationEnd={() => setActivePlatformTab((prev) => (prev + 1) % platformTabs.length)}
-                        />
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {/* Screenshot — right side */}
-              <div className="flex items-center justify-center overflow-hidden rounded-2xl border border-gray-200 bg-[#F9FAFB] shadow-sm">
-                <Image
-                  src={platformTabs[activePlatformTab].image}
-                  alt={platformTabs[activePlatformTab].title}
-                  width={800}
-                  height={550}
-                  className="h-auto w-full object-contain"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/*  SECTION 10 — CUSTOMER CASE STUDIES                          */}
-        {/* ============================================================ */}
-        <section className="bg-[#102A56] py-20 md:py-28">
-          <div className="mx-auto max-w-[1280px] px-5 md:px-8">
-            <div className="mb-10 flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
-              <div>
-                <h2 className="mb-3 text-3xl font-bold text-white md:text-4xl">
-                  Secure Your Future With Us
-                </h2>
-                <p className="max-w-2xl text-lg text-white/70">
-                  Join the growing list of businesses empowering their teams with Vatix.
-                </p>
-              </div>
-              <a
-                href="#"
-                className="inline-flex items-center justify-center rounded-lg bg-[#FFC83D] px-5 py-2.5 text-sm font-medium text-[#102A56] transition-colors hover:bg-[#FFD060]"
-              >
-                View All
-              </a>
-            </div>
-          </div>
-
-          {/* Scrollable carousel with arrows */}
-          <div className="relative">
-            {/* Left arrow */}
-            <button
-              onClick={() => scrollCaseStudies("left")}
-              className="absolute left-2 md:left-4 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[#102A56]/80 text-white backdrop-blur-sm transition-colors hover:bg-[#102A56]"
-              aria-label="Previous case study"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 4L6 8L10 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
-
-            {/* Right arrow */}
-            <button
-              onClick={() => scrollCaseStudies("right")}
-              className="absolute right-2 md:right-4 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[#102A56]/80 text-white backdrop-blur-sm transition-colors hover:bg-[#102A56]"
-              aria-label="Next case study"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
-
-            <div
-              ref={caseStudyRef}
-              className="flex gap-5 overflow-x-auto scroll-smooth px-5 md:px-8 pb-4 scrollbar-hide"
-            >
-              {caseStudies.map((cs, i) => (
-                <div
-                  key={i}
-                  className="flex w-[320px] shrink-0 flex-col rounded-2xl bg-white p-6"
-                >
-                  <div className="mb-6 flex h-12 items-center">
-                    <Image
-                      src={cs.logo}
-                      alt={cs.logoAlt}
-                      width={120}
-                      height={48}
-                      className="h-10 w-auto object-contain"
-                    />
-                  </div>
-                  <p className="mb-6 flex-1 text-sm leading-relaxed text-[#475467]">
-                    &ldquo;{cs.quote}&rdquo;
-                  </p>
-                  <div>
-                    <p className="mb-3 text-sm font-medium text-[#667085]">{cs.role}</p>
-                    <a
-                      href="#"
-                      className="inline-flex items-center gap-1 text-sm font-semibold text-[#1A1A2E] transition-colors hover:text-[#FFC83D]"
+              {/* Tier tabs */}
+              <div className="mb-10 flex justify-center">
+                <div className="inline-flex rounded-full bg-[#F2F4F7] p-1">
+                  {calcTierData.map((t, i) => (
+                    <button
+                      key={t.name}
+                      onClick={() => setCalcTier(i)}
+                      className={`rounded-full px-5 py-2 text-sm font-medium transition-colors ${
+                        calcTier === i
+                          ? "bg-[#102A56] text-white shadow-sm"
+                          : "text-[#667085] hover:text-[#1A1A2E]"
+                      }`}
                     >
-                      Read Full Story
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </a>
-                  </div>
+                      {t.name}
+                    </button>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              {/* Inputs */}
+              <div className="mx-auto mb-8 grid max-w-xl grid-cols-2 gap-6 sm:grid-cols-4">
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#667085]">
+                    Full Users
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={fullUsers}
+                    onChange={(e) =>
+                      setFullUsers(Math.max(0, Number(e.target.value)))
+                    }
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-semibold text-[#1A1A2E] outline-none transition focus:border-[#2E90FA] focus:ring-2 focus:ring-[#2E90FA]/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#667085]">
+                    Workforce
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={workforce}
+                    onChange={(e) =>
+                      setWorkforce(Math.max(0, Number(e.target.value)))
+                    }
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-semibold text-[#1A1A2E] outline-none transition focus:border-[#2E90FA] focus:ring-2 focus:ring-[#2E90FA]/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#667085]">
+                    Devices
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={devices}
+                    onChange={(e) =>
+                      setDevices(Math.max(0, Number(e.target.value)))
+                    }
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-semibold text-[#1A1A2E] outline-none transition focus:border-[#2E90FA] focus:ring-2 focus:ring-[#2E90FA]/20"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#667085]">
+                    Apps
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={apps}
+                    onChange={(e) =>
+                      setApps(Math.max(0, Number(e.target.value)))
+                    }
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-center text-lg font-semibold text-[#1A1A2E] outline-none transition focus:border-[#2E90FA] focus:ring-2 focus:ring-[#2E90FA]/20"
+                  />
+                </div>
+              </div>
+
+              {/* Rate breakdown */}
+              <div className="mx-auto mb-8 flex max-w-xl justify-between border-t border-gray-100 pt-4 text-xs text-[#98A2B3]">
+                <span>£{isAnnual ? activeTier.annual : activeTier.monthly}/user/mo</span>
+                <span>£{workforceMo}/person/mo</span>
+                <span>£{activeTier.deviceRate}/device/mo</span>
+                <span>£{activeTier.appRate}/app/mo</span>
+              </div>
+
+              {/* Result */}
+              <p className="mb-2 text-sm text-[#667085]">
+                Estimated annual cost ({activeTier.name} · {isAnnual ? "annual" : "monthly"} billing)
+              </p>
+              <p className="mb-8 text-5xl font-bold text-[#1A1A2E]">
+                £{new Intl.NumberFormat("en-GB").format(estimatedAnnualCost)}
+              </p>
+
+              <button className="inline-flex items-center gap-2 rounded-lg bg-[#FFC83D] px-8 py-3.5 text-sm font-semibold text-[#1A1A2E] transition-colors hover:bg-[#FFD060]">
+                Get a tailored quote
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </section>
 
-        {/* ============================================================ */}
-        {/*  SECTION 11 — FAQ                                            */}
-        {/* ============================================================ */}
+        {/* ====================================================== */}
+        {/*  FAQ                                                    */}
+        {/* ====================================================== */}
         <section className="bg-white py-20 md:py-28">
           <div className="mx-auto max-w-[1280px] px-5 md:px-8">
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.5fr] lg:gap-16">
@@ -924,19 +924,21 @@ export default function Home() {
 
               {/* Right — Accordion */}
               <div className="flex flex-col divide-y divide-gray-200">
-                {faqItems.map((item, i) => (
+                {faqs.map((faq, i) => (
                   <div key={i} className="py-5">
                     <button
-                      onClick={() => toggleFaq(i)}
+                      onClick={() => setOpenFaq(openFaq === i ? null : i)}
                       className="flex w-full items-start justify-between gap-4 text-left"
                       aria-expanded={openFaq === i}
                     >
                       <span className="text-base font-semibold text-[#1A1A2E] md:text-lg">
-                        {item.question}
+                        {faq.question}
                       </span>
-                      <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center text-xl leading-none text-[#667085] transition-transform duration-300 ${
+                      <span
+                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center text-xl leading-none text-[#667085] transition-transform duration-300 ${
                           openFaq === i ? "rotate-45" : ""
-                        }`}>
+                        }`}
+                      >
                         +
                       </span>
                     </button>
@@ -944,40 +946,12 @@ export default function Home() {
                       className={`faq-content ${openFaq === i ? "open" : ""}`}
                     >
                       <p className="mt-3 text-base leading-relaxed text-[#475467]">
-                        {item.answer}
+                        {faq.answer}
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/*  SECTION 12 — FINAL CTA                                      */}
-        {/* ============================================================ */}
-        <section className="relative overflow-hidden bg-[#EDF6FF] py-20 md:py-28">
-          {/* Geometric background shapes */}
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-20 -top-20 h-80 w-80 rotate-12 rounded-3xl bg-[#DCEEFB] opacity-20" />
-            <div className="absolute -right-16 -bottom-16 h-64 w-64 -rotate-12 rounded-3xl bg-[#DCEEFB] opacity-20" />
-            <div className="absolute right-1/4 top-1/4 h-40 w-40 rotate-45 rounded-2xl bg-[#DCEEFB] opacity-15" />
-          </div>
-          <div className="relative mx-auto max-w-[1280px] px-5 md:px-8">
-            <div className="flex flex-col items-center text-center">
-              <h2 className="mb-4 text-3xl font-bold text-[#1A1A2E] md:text-4xl">
-                Protect Your Lone Workers with Easy-to-Use Devices
-              </h2>
-              <p className="mb-8 max-w-2xl text-lg text-[#475467]">
-                Share your requirements with us, and our Vatix experts will craft a personalised quote tailored to meet your unique needs.
-              </p>
-              <a
-                href="#"
-                className="inline-flex items-center justify-center rounded-lg bg-[#FFC83D] px-8 py-4 text-base font-semibold text-[#1A1A2E] transition-colors hover:bg-[#FFD060]"
-              >
-                Get a Quote
-              </a>
             </div>
           </div>
         </section>
