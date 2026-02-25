@@ -76,8 +76,6 @@ const tiers = [
       { text: "Mobile app (iOS & Android)" },
       { text: "Email support \u2014 48 hr response" },
       { text: "Risk assessments", unavailable: true },
-      { text: "SSO / SCIM", unavailable: true },
-      { text: "API access", unavailable: true },
     ] as Feature[],
   },
   {
@@ -96,7 +94,7 @@ const tiers = [
       { text: "Unlimited custom dashboards" },
       { text: "Branded PDF & Excel reporting" },
       { text: "500 documents included" },
-      { text: "Sites & assets register" },
+      { text: "Sites & assets register (1,000 each)" },
       { text: "Single sign-on (SSO)" },
       { text: "Enhanced support" },
       { text: "Guided onboarding included" },
@@ -312,13 +310,13 @@ export default function PricingPage() {
 
   /* Cost calculator — tier-aware */
   const calcTierData = [
-    { name: "Essentials", monthly: 24, annual: 19, deviceRate: 14, appRate: 7 },
-    { name: "Professional", monthly: 44, annual: 35, deviceRate: 12, appRate: 6 },
-    { name: "Enterprise", monthly: 69, annual: 55, deviceRate: 10, appRate: 5 },
+    { name: "Essentials", monthly: 24, annual: 19, deviceRate: 14, appRate: 7, workforceRate: 2.5 },
+    { name: "Professional", monthly: 44, annual: 35, deviceRate: 12, appRate: 6, workforceRate: 3.5 },
+    { name: "Enterprise", monthly: 69, annual: 55, deviceRate: 10, appRate: 5, workforceRate: 3.5 },
   ];
   const activeTier = calcTierData[calcTier];
   const userRateMo = isAnnual ? activeTier.annual : activeTier.monthly;
-  const workforceMo = 2;
+  const workforceMo = activeTier.workforceRate;
   const estimatedAnnualCost =
     fullUsers * userRateMo * 12 +
     workforce * workforceMo * 12 +
@@ -545,7 +543,8 @@ export default function PricingPage() {
                   documents — without the cost of a full seat.
                 </p>
                 <div className="mb-3">
-                  <span className="text-4xl font-bold text-white">£2</span>
+                  <span className="mr-1 text-sm text-white/60">from</span>
+                  <span className="text-4xl font-bold text-white">£2.50</span>
                   <span className="ml-1 text-white/60">
                     /person/month · billed annually
                   </span>
