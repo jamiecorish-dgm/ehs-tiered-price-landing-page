@@ -76,6 +76,8 @@ const tiers = [
       { text: "Mobile app (iOS & Android)" },
       { text: "Email support \u2014 48 hr response" },
       { text: "Risk assessments", unavailable: true },
+      { text: "SSO / SCIM", unavailable: true },
+      { text: "API access", unavailable: true },
     ] as Feature[],
   },
   {
