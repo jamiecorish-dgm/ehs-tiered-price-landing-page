@@ -115,7 +115,7 @@ const tiers = [
       { text: "AI assistant", tag: "AI" as const },
       { text: "Documents & dashboard builder" },
       { text: "Predictive analytics & trend detection" },
-      { text: "1,000 sites, 1,000 assets, 1,000 contacts" },
+      { text: "Unlimited sites, assets & contacts" },
       { text: "Custom integrations & dedicated API" },
       { text: "Multi-language support" },
       { text: "Dedicated account manager & QBRs" },
